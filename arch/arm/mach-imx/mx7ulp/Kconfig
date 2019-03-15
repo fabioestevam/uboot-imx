@@ -27,6 +27,10 @@ config TARGET_MX7ULP_14X14_ARM2
 	select BOARD_LATE_INIT
 	select MX7ULP
 
+config TARGET_MX7ULP_COM
+	bool "Support MX7ULP COM board"
+	select MX7ULP
+
 config TARGET_MX7ULP_EVK
 	bool "Support mx7ulp EVK board"
 	select BOARD_LATE_INIT
@@ -34,6 +38,7 @@ config TARGET_MX7ULP_EVK
 
 endchoice
 
+source "board/ea/mx7ulp_com/Kconfig"
 source "board/freescale/mx7ulp_arm2/Kconfig"
 source "board/freescale/mx7ulp_evk/Kconfig"
 

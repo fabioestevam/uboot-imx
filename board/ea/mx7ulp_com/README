@@ -1,0 +1,62 @@
+How to update U-Boot on Embedded Artists COM board
+--------------------------------------------------
+
+Required software on the Linux host PC:
+
+- imx_usb_loader: https://github.com/boundarydevices/imx_usb_loader
+
+The imx_usb_loader utility allows loading U-Boot via USB download
+mode.
+
+Build U-Boot for Embedded Artists COM board:
+
+$ make mrproper
+$ make mx7ulp_com_defconfig
+$ make
+
+This generates the U-Boot binary called u-boot-dtb.imx.
+
+Put the COM board in USB download mode:
+
+Sliding switch position		Down	Up	Up	Down
+Sliding switch label		1	2	3	4
+
+Connect a USB cable between the host PC and the COM board J14
+connector. This provides the serial console for the CortexM4
+and CortexA7.
+
+By default the CortexM4 console appears at /dev/ttyS0 and
+the CortexA7 console is at /dev/ttyUSB1.
+
+Connect a USB cable between the host PC and the OTG COM J13
+connector. The COM board is powered via J13.
+
+Open a terminal program such as minicom at /dev/ttyUSB1.
+
+Copy u-boot-dtb.imx to the imx_usb_loader folder.
+
+Load u-boot-dtb.imx via USB:
+
+$ sudo ./imx_usb u-boot-dtb.imx
+
+Then U-Boot starts and its messages appear in the console program.
+
+Run the UMS command:
+=> ums 0 mmc 0
+
+Transfer u-boot-dtb.imx to be flashed into the eMMC:
+
+$ sudo dd if=u-boot-dtb.imx of=/dev/sdX bs=1K seek=1; sync
+
+=> mmc partconf 0 0 0 0
+=> env default -f -a
+=> saveenv
+
+Remove power from the COM board.
+
+Put the COM board into eMMC boot mode:
+
+Sliding switch position		Up	Down	Up	Down
+Sliding switch label		1	2	3	4
+
+Power up the board and the new updated U-Boot should boot from eMMC.
