@@ -41,6 +41,8 @@ $ sudo ./imx_usb u-boot-dtb.imx
 
 Then U-Boot starts and its messages appear in the console program.
 
+Type "CTRL + C" to get into the U-Boot prompt
+
 Run the UMS command:
 => ums 0 mmc 0
 
