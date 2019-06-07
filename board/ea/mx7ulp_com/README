@@ -32,6 +32,8 @@ Connect a USB cable between the host PC and the OTG COM J13
 connector. The COM board is powered via J13.
 
 Open a terminal program such as minicom at /dev/ttyUSB1.
+Make sure that the terminal program does not have FlowControl
+enabled.
 
 Copy u-boot-dtb.imx to the imx_usb_loader folder.
 
@@ -49,6 +51,10 @@ Run the UMS command:
 Transfer u-boot-dtb.imx to be flashed into the eMMC:
 
 $ sudo dd if=u-boot-dtb.imx of=/dev/sdX bs=1K seek=1; sync
+
+When the dd command is finished, type "CTRL + C" in the terminal
+to stop ums and get back to the U-Boot prompt. Run the following
+commands:
 
 => mmc partconf 0 0 0 0
 => env default -f -a
