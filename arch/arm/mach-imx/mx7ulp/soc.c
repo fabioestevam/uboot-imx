@@ -17,6 +17,19 @@
 #include <fsl_caam.h>
 #endif
 
+#define PMC0_BASE_ADDR		0x410a1000
+#define PMC0_CTRL		0x28
+#define PMC0_CTRL_LDOEN		BIT(31)
+#define PMC0_CTRL_LDOOKDIS	BIT(30)
+#define PMC0_CTRL_PMC1ON	BIT(24)
+#define PMC1_BASE_ADDR		0x40400000
+#define PMC1_RUN		0x8
+#define PMC1_RUN_LDOVL_SHIFT	16
+#define PMC1_RUN_LDOVL_MASK	(0x3f << PMC1_RUN_LDOVL_SHIFT)
+#define PMC1_RUN_LDOVL_950	0x23
+#define PMC1_STATUS		0x20
+#define PMC1_STATUS_LDOVLF	BIT(8)
+
 static char *get_reset_cause(char *);
 
 #if defined(CONFIG_SECURE_BOOT)
@@ -167,6 +180,32 @@ void init_wdog(void)
 	disable_wdog(WDG2_RBASE);
 }
 
+#if defined(CONFIG_LDO_ENABLED_MODE)
+static void init_ldo_mode(void)
+{
+	unsigned int reg;
+
+	/* Set LDOOKDIS */
+	setbits_le32(PMC0_BASE_ADDR + PMC0_CTRL, PMC0_CTRL_LDOOKDIS);
+
+	/* Set LDOVL to 0.95V in PMC1_RUN */
+	reg = readl(PMC1_BASE_ADDR + PMC1_RUN);
+	reg &= ~PMC1_RUN_LDOVL_MASK;
+	reg |= (PMC1_RUN_LDOVL_950 << PMC1_RUN_LDOVL_SHIFT);
+	writel(PMC1_BASE_ADDR + PMC1_RUN, reg);
+
+	/* Wait for LDOVLF to be cleared */
+	reg = readl(PMC1_BASE_ADDR + PMC1_STATUS);
+	while (reg & PMC1_STATUS_LDOVLF)
+		;
+
+	/* Set LDOEN bit */
+	setbits_le32(PMC0_BASE_ADDR + PMC0_CTRL, PMC0_CTRL_LDOEN);
+
+	/* Set the PMC1ON bit */
+	setbits_le32(PMC0_BASE_ADDR + PMC0_CTRL, PMC0_CTRL_PMC1ON);
+}
+#endif
 
 void s_init(void)
 {
@@ -185,6 +224,10 @@ void s_init(void)
 		writel((readl(SNVS_LP_LPCR) | SNVS_LPCR_SRTC_ENV), SNVS_LP_LPCR);
 #endif
 	}
+
+#if defined(CONFIG_LDO_ENABLED_MODE)
+	init_ldo_mode();
+#endif
 	return;
 }
 
