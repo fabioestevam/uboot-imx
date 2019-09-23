@@ -50,6 +50,13 @@ config USE_IMXIMG_PLUGIN
 	  i.MX6/7 supports DCD and Plugin. Enable this configuration
 	  to use Plugin, otherwise DCD will be used.
 
+config IMX7ULP_LOWER_DDR_FREQUENCY
+	bool "Use lower DDR Frequency for i.MX7ULP"
+	depends on ARCH_MX7ULP
+	help
+	  Some systems can not run DDR frequency at 352MHz, so select
+	  this option to run DDR frequency at 316.8MHz instead
+
 config SECURE_BOOT
 	bool "Support i.MX HAB features"
 	depends on ARCH_MX7 || ARCH_MX6 || ARCH_MX5 || ARCH_MX7ULP || ARCH_IMX8M
