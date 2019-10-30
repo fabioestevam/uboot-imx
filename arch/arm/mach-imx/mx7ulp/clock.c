@@ -276,31 +276,6 @@ static void init_clk_rgpio2p(void)
 	writel(PCC_CGC_MASK, (PCC0_RBASE + 0x3C));
 }
 
-/*
- * Default PFD0 divide is 27, which generates:
- * PFD0 Freq = A7 APLL(528MHz) * 18 / 27 = 352MHz
- *
- * As some systems can not run DDR at 352MHz, use a
- * divider of 30, which gives:
- *
- * PFD0 Freq = A7 APLL(528MHz) * 18 / 30 = 316.8MHz
- */
-#define SCG1_APLL_PFD0_FRAC_NUM		30
-static void scg_a7_apll_update_pfd0(void)
-{
-	scg_p scg1_regs = (scg_p)SCG1_RBASE;
-	u32 val;
-
-	if (!IS_ENABLED(CONFIG_IMX7ULP_LOWER_DDR_FREQUENCY))
-		return;
-
-	/* Configure A7 APLL PFD0 */
-	val = readl(&scg1_regs->apllpfd);
-	val &= ~SCG_PLL_PFD0_FRAC_MASK;
-	val |= SCG1_APLL_PFD0_FRAC_NUM;
-	writel(val, &scg1_regs->apllpfd);
-}
-
 /* Configure PLL/PFD freq */
 void clock_init(void)
 {
@@ -326,8 +301,6 @@ void clock_init(void)
 	scg_a7_firc_init();
 
 	scg_a7_soscdiv_init();
-
-	scg_a7_apll_update_pfd0();
 
 	scg_a7_init_core_clk();
 
